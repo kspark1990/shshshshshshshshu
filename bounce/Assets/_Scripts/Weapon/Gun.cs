@@ -16,11 +16,15 @@ public class Gun : MonoBehaviour {
 
 	public bool reload = true;
 
+	public BulletUI bulletUI;
+	public int currentBulletCount = 7;
+	public int maxBulletCount = 10;
 
 	private void Awake()
 	{
 		viewCamera = Camera.main;
-
+		bulletUI.ResetBulletUI();
+		bulletUI.SetBulletCount(currentBulletCount);
 	}
 
 
@@ -92,7 +96,25 @@ public class Gun : MonoBehaviour {
 		bulletRigid.AddForce(go.transform.forward * force);
 		reload = false;
 
+		currentBulletCount--;
+		bulletUI.Shoot(currentBulletCount);
+
+
 	}
+
+	//게임메니저로 이동
+	void AddBullet(int count)
+	{
+		bulletUI.AddBulletCount(currentBulletCount, count);
+
+		currentBulletCount += count;
+		if (currentBulletCount >= maxBulletCount)
+		{
+			currentBulletCount = maxBulletCount;
+		}
+
+	}
+
 
 	private void Update()
 	{
@@ -102,5 +124,12 @@ public class Gun : MonoBehaviour {
 		{
 			Shot();
 		}
+
+		if (Input.GetKeyDown(KeyCode.F1))
+		{
+			AddBullet(3);
+		}
+
+
 	}
 }

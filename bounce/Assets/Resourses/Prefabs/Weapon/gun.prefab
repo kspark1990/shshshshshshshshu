@@ -127,3 +127,7 @@ MonoBehaviour:
   force: 30
   muzzle: {fileID: 4242231534027794}
   bullet: {fileID: 1350537490260008, guid: 1399be4fa56c5a5408536a743a358f22, type: 2}
+  reload: 1
+  bulletUI: {fileID: 0}
+  currentBulletCount: 7
+  maxBulletCount: 10
