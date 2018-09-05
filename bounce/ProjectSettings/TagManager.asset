@@ -8,6 +8,8 @@ TagManager:
   - obstacle
   - out
   - in
+  - BulletUI
+  - Shooter
   layers:
   - Default
   - TransparentFX

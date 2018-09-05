@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Gun : MonoBehaviour {
 
-
-
 	Vector3 aimVector;
 
 	public float force = 10f;
@@ -17,15 +15,34 @@ public class Gun : MonoBehaviour {
 	public bool reload = true;
 
 	public BulletUI bulletUI;
-	public int currentBulletCount = 7;
+	[HideInInspector]
+	public int currentBulletCount;
 	public int maxBulletCount = 10;
+
+	public bool nowChangingStage = false;
 
 	private void Awake()
 	{
+		currentBulletCount = GameManager.Instance.getStageBulletLimit();
+
 		viewCamera = Camera.main;
+
+		bulletUI = GameObject.FindGameObjectWithTag("BulletUI").GetComponent<BulletUI>();
+		ResetbulletUI();
+	}
+
+	public void ResetbulletUI()
+	{
 		bulletUI.ResetBulletUI();
 		bulletUI.SetBulletCount(currentBulletCount);
 	}
+	void LoadStageBulletCountInfo()
+	{
+		currentBulletCount = GameManager.Instance.getStageBulletLimit();
+
+
+	}
+
 
 
 	void Aim()
@@ -34,10 +51,8 @@ public class Gun : MonoBehaviour {
 		{
 			if (TouchPosition().z <= this.transform.position.z)
 			{
-				Debug.Log("클릭");
-
 				Vector3 aVector = TouchPosition() - this.transform.position;
-				Vector3 bVector3 = new Vector3(0, 0, TouchPosition().z) - this.transform.position;
+				Vector3 bVector3 = new Vector3(this.transform.position.x, 0, TouchPosition().z) - this.transform.position;
 
 				float theta = Vector3.Dot(aVector, bVector3) / (aVector.magnitude * bVector3.magnitude);
 				float angle = Mathf.Acos(theta) * Mathf.Rad2Deg;
@@ -45,7 +60,6 @@ public class Gun : MonoBehaviour {
 				Vector3 dirAngle = Vector3.Cross(aVector, bVector3);
 				if (dirAngle.y > 0.0f)
 					angle = -angle;
-
 
 				if (angle <= -70)
 				{
@@ -56,19 +70,14 @@ public class Gun : MonoBehaviour {
 					angle = 70;
 				}
 
-
 				transform.rotation = Quaternion.Euler(0, angle, 0);
-
-
 			}
-			//else
-				//transform.LookAt(new Vector3(0, 0, 0));
+
+
 		}
-		else
-		{
-			Debug.Log("클릭 X");
-		}
+
 	}
+
 	Vector3 TouchPosition()
 	{
 
@@ -82,24 +91,20 @@ public class Gun : MonoBehaviour {
 			return new Vector3(point.x, 0, point.z);
 		}
 		else
+		{
+			Debug.Log("ELSE");
 			return new Vector3(0, 0, -5);
-
+		}
+			
 	}
 
 	void Shot()
 	{
-		GameObject go = Instantiate(bullet, muzzle.position, muzzle.rotation);
-		Projectile projectile = go.GetComponent<Projectile>();
-		projectile.gun = this.GetComponent<Gun>();
-
-		Rigidbody bulletRigid = go.GetComponent<Rigidbody>();
-		bulletRigid.AddForce(go.transform.forward * force);
+		GameManager.Instance.InstantiateBullet(muzzle);
 		reload = false;
-
 		currentBulletCount--;
 		bulletUI.Shoot(currentBulletCount);
-
-
+		
 	}
 
 	//게임메니저로 이동
@@ -120,16 +125,20 @@ public class Gun : MonoBehaviour {
 	{
 		Aim();
 
-		if (Input.GetMouseButtonUp(0)&&reload)
-		{
-			Shot();
-		}
 
-		if (Input.GetKeyDown(KeyCode.F1))
+		if (nowChangingStage == false)
 		{
-			AddBullet(3);
-		}
 
+			if (Input.GetMouseButtonUp(0) && reload)
+			{
+				Shot();
+			}
+
+			if (Input.GetKeyDown(KeyCode.F1))
+			{
+				AddBullet(3);
+			}
+		}
 
 	}
 }

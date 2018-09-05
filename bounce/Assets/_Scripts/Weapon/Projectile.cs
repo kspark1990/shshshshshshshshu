@@ -20,6 +20,9 @@ public class Projectile : MonoBehaviour {
 		ProjectileColl = GetComponent<Collider>();
 		ProjectileMesh = GetComponent<MeshRenderer>();
 		particle = GetComponent<ParticleSystem>();
+		gun = GameManager.Instance.gunScript;
+		ProjectileRigid.AddForce(gun.transform.forward * gun.force);
+
 	}
 
 	private void DestroyProjectile()
@@ -37,9 +40,10 @@ public class Projectile : MonoBehaviour {
 
 		if (collision.transform.tag == "box")
 		{
+			GameManager.Instance.ChangeBoxCount(-1);
 			Destroy(collision.gameObject);
 			DestroyProjectile();
-
+			
 		}
 		else if(collision.transform.tag == "obstacle")
 		{
