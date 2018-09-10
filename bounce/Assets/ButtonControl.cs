@@ -28,7 +28,6 @@ public class ButtonControl : MonoBehaviour {
 		}
 		//
 		Button[] button = listButton[sceneIndex - 1].GetComponentsInChildren<Button>();
-        Debug.Log(button);
 		for(int i = 0; i <= stageIndex; i++)
 		{
 			button[i].interactable = true;
@@ -82,5 +81,11 @@ public class ButtonControl : MonoBehaviour {
         SetButtonActive();
     }
 
+    //this is for test method
+    public void TestClear1Stage(int index)
+    {
+        LoadAndSave.Instance.SaveReachStage(index);
+        SetButtonActive();
+    }
 
 }

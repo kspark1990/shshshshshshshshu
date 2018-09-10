@@ -8,9 +8,6 @@ public class GameManager : MonoSingleton<GameManager>
 	public int[] boxCount;
 	public int[] bulletLimit;
 
-	
-
-
 	int currentStageNum = 0;
 	int currnetBoxCount;
 
@@ -116,7 +113,8 @@ public class GameManager : MonoSingleton<GameManager>
 
 		if (currentStageNum == 10)
 		{
-			//TODO : change scene 
+            return;
+            //TODO : change scene
 		}
 
 

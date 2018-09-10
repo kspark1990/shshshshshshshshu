@@ -38,5 +38,4 @@ public class LoadAndSave : MonoSingleton<LoadAndSave>
 	}
 
 
-
 }
