@@ -19,6 +19,10 @@ public class SceneController : MonoSingleton<SceneController>
 	//{
 	//	GameManager.Instance.MoveStage(index);
 	//}
+	public void ReturnToTitle()
+	{
+		SceneManager.LoadScene(0);
+	}
 
 
 
