@@ -11,6 +11,7 @@ public class GameManager : MonoSingleton<GameManager>
 	int currentStageNum = 0;
 	int currnetBoxCount;
 
+	bool emptyBullet = false;
 
 	//for instansiate stuff; 
 	//using Resources.Load
@@ -33,6 +34,10 @@ public class GameManager : MonoSingleton<GameManager>
 	public GameObject getStageGO()
 	{
 		return stage[currentStageNum];
+	}
+	public int getCurrentBoxCount()
+	{
+		return currnetBoxCount;
 	}
 
 	public void StageInit()
@@ -110,13 +115,14 @@ public class GameManager : MonoSingleton<GameManager>
 	{
 		//TODO : if stage is 10, load lobby scene
 		currentStageNum += stageIndex;
-
-		if (currentStageNum == 10)
+		LoadAndSave.Instance.SaveReachStage(SceneController.Instance.GetSceneIndex() * 10 + currentStageNum);
+		if (currentStageNum >= 10)
 		{
-            return;
+			SceneController.Instance.LoadScene(SceneController.Instance.GetSceneIndex()+1,0);
+			return;
             //TODO : change scene
 		}
-
+		
 
 		Transform trans = getStageGO().transform;
 		//set gun pos, rot
@@ -146,7 +152,6 @@ public class GameManager : MonoSingleton<GameManager>
 		{
 			ClearStage();
 		}
-
 	}
 
 
@@ -155,11 +160,17 @@ public class GameManager : MonoSingleton<GameManager>
 	{
 		gunScript.nowChangingStage = true;
 		MoveStage(1);
-		LoadAndSave.Instance.SaveReachStage(SceneController.Instance.GetSceneIndex() * 10 + currentStageNum);
+		//LoadAndSave.Instance.SaveReachStage(SceneController.Instance.GetSceneIndex() * 10 + currentStageNum);
+
+
 	}
 
-	void GameOver()
+	public void GameOver()
 	{
+
+		Debug.Log("GAME OVER");
+		SceneController.Instance.ReturnToTitle();
+
 
 
 	}

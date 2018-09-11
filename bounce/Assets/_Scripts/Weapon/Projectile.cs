@@ -21,6 +21,7 @@ public class Projectile : MonoBehaviour {
 		ProjectileMesh = GetComponent<MeshRenderer>();
 		particle = GetComponent<ParticleSystem>();
 		gun = GameManager.Instance.gunScript;
+		
 		ProjectileRigid.AddForce(gun.transform.forward * gun.force);
 
 	}
@@ -28,11 +29,15 @@ public class Projectile : MonoBehaviour {
 	private void DestroyProjectile()
 	{
 		//before destroy projectile, to maintain trail render 
-		ProjectileRigid.velocity = Vector3.zero;
-		ProjectileColl.enabled = false;
-		ProjectileMesh.enabled = false;
 
-		Destroy(this.gameObject, 1);
+		//ProjectileRigid.velocity = Vector3.zero;
+		//ProjectileColl.enabled = false;
+		//ProjectileMesh.enabled = false;
+
+
+		//detach trail renderer
+		this.transform.DetachChildren();
+		Destroy(this.gameObject);
 	}
 
 	private void OnCollisionEnter(Collision collision)
@@ -52,7 +57,9 @@ public class Projectile : MonoBehaviour {
 				return;
 
 			if (bounceCount <= 0)
+			{
 				DestroyProjectile();
+			}
 			else
 			{
 				bounceCount--;
@@ -105,8 +112,19 @@ public class Projectile : MonoBehaviour {
 
 	private void OnDestroy()
 	{
-		gun.reload = true;
+		
+		if(gun.currentBulletCount>0)
+			gun.reload = true;
+		else if(gun.currentBulletCount<=0 && GameManager.Instance.getCurrentBoxCount() > 0)
+		{
+			GameManager.Instance.GameOver();
+		}
+				
+
 	}
+
+
+
 
 
 

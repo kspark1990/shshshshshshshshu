@@ -103,6 +103,9 @@ public class Gun : MonoBehaviour {
 		GameManager.Instance.InstantiateBullet(muzzle);
 		reload = false;
 		currentBulletCount--;
+
+
+
 		bulletUI.Shoot(currentBulletCount);
 		
 	}
