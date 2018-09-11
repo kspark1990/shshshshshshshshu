@@ -14,11 +14,16 @@ public class Projectile : MonoBehaviour {
 
 	ParticleSystem particle;
 
+    private TrailRenderer trail;
+
 	private void Awake()
 	{
-		ProjectileRigid = GetComponent<Rigidbody>();
-		ProjectileColl = GetComponent<Collider>();
-		ProjectileMesh = GetComponent<MeshRenderer>();
+        
+        ProjectileRigid = GetComponent<Rigidbody>();
+        ProjectileColl = GetComponent<Collider>();
+        //ProjectileMesh = GetComponent<MeshRenderer>();
+
+        trail = GetComponentInChildren<TrailRenderer>();
 		particle = GetComponent<ParticleSystem>();
 		gun = GameManager.Instance.gunScript;
 		
@@ -28,15 +33,16 @@ public class Projectile : MonoBehaviour {
 
 	private void DestroyProjectile()
 	{
-		//before destroy projectile, to maintain trail render 
+        //before destroy projectile, to maintain trail render 
 
-		//ProjectileRigid.velocity = Vector3.zero;
-		//ProjectileColl.enabled = false;
-		//ProjectileMesh.enabled = false;
+        ProjectileRigid.velocity = Vector3.zero;
+        ProjectileColl.enabled = false;
+        //ProjectileMesh.enabled = false;
 
 
+        
+        trail.transform.parent = null;
 		//detach trail renderer
-		this.transform.DetachChildren();
 		Destroy(this.gameObject);
 	}
 
@@ -112,7 +118,7 @@ public class Projectile : MonoBehaviour {
 
 	private void OnDestroy()
 	{
-		
+		//check bullet count when bullet is destroyed
 		if(gun.currentBulletCount>0)
 			gun.reload = true;
 		else if(gun.currentBulletCount<=0 && GameManager.Instance.getCurrentBoxCount() > 0)

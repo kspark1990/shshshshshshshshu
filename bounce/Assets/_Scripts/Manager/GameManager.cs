@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameManager : MonoSingleton<GameManager>
 {
 	public GameObject[] stage;
+    public GameObject[] stageIndexBlock;
 	public int[] boxCount;
 	public int[] bulletLimit;
 
@@ -35,7 +36,12 @@ public class GameManager : MonoSingleton<GameManager>
 	{
 		return stage[currentStageNum];
 	}
-	public int getCurrentBoxCount()
+    public GameObject getStageIndexBlockGO()
+    {
+        return stageIndexBlock[currentStageNum];
+    }
+
+    public int getCurrentBoxCount()
 	{
 		return currnetBoxCount;
 	}
@@ -44,7 +50,8 @@ public class GameManager : MonoSingleton<GameManager>
 	{
 		currnetBoxCount = boxCount[currentStageNum];
 		SpawnGun();
-		MoveCamera();
+        StartCoroutine(MoveCam());
+		//MoveCamera();
 	}
 
 	//this method is called in first scene
@@ -100,47 +107,104 @@ public class GameManager : MonoSingleton<GameManager>
 
 
 	//test
+    //not using now
 	public void MoveCamera()
 	{
 		Transform trans = getStageGO().transform;
 		Camera.main.transform.position = trans.position;
 	}
+
+
 	public void SetCurrentStageNum(int index)
 	{
 		currentStageNum = index;
 	}
 
-	//int param means stage num
+	//int param means stage num(1 ~ 10)
 	public void MoveStage(int stageIndex)
 	{
 		//TODO : if stage is 10, load lobby scene
 		currentStageNum += stageIndex;
 		LoadAndSave.Instance.SaveReachStage(SceneController.Instance.GetSceneIndex() * 10 + currentStageNum);
+
+        //if stage is over 10(means clear current scene)
 		if (currentStageNum >= 10)
 		{
-			SceneController.Instance.LoadScene(SceneController.Instance.GetSceneIndex()+1,0);
+            //found script in Hierarchy
+            //TODO : find better way to find that script.
+            ButtonInGameScene BGC = FindObjectOfType<ButtonInGameScene>();
+            if (BGC == null)
+                Debug.Log("ButtonInGameScene Load Failed!!");
+            else
+                BGC.ActiveLastStageMenu();
+
 			return;
-            //TODO : change scene
 		}
+
+
+        StartCoroutine(MoveStuff());
+
 		
-
-		Transform trans = getStageGO().transform;
-		//set gun pos, rot
-		gun.transform.position = trans.GetChild(0).position;
-		gun.transform.rotation = Quaternion.Euler(0, 0, 0);
-		//set gun bullet count
-		gunScript.currentBulletCount = getStageBulletLimit();
-		//move camera position
-		Camera.main.transform.position = trans.position;
-
-		currnetBoxCount = boxCount[currentStageNum];
-
-		gunScript.ResetbulletUI();
-		gunScript.nowChangingStage = false;
 	}
 
+    //this method is call when load stage from SceneController.cs in LoadScene method
+    IEnumerator MoveCam()
+    {
+        gunScript.nowChangingStage = true;
+        //TODO : need change!!
+        gunScript.bulletUI.ResetBulletUI();
+        Transform trans = getStageGO().transform;
+        if (getStageIndexBlockGO() != null)
+            Camera.main.transform.position = getStageIndexBlockGO().transform.position;
+        else
+            Camera.main.transform.position = trans.position;
+
+        yield return new WaitForSeconds(.4f);
+        while ((Camera.main.transform.position - trans.position).magnitude >= .01f)
+        {
+            Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, trans.position, Time.deltaTime * 5f);
+            yield return null;
+        }
+        //TODO : find better way
+        gunScript.bulletUI.SetBulletCount(getStageBulletLimit());
+        gunScript.nowChangingStage = false;
+
+    }
 
 
+    //include gun, camera moving
+    //cam moving animation
+    IEnumerator MoveStuff()
+    {
+        Transform trans = getStageGO().transform;
+        //set gun pos, rot
+        gun.transform.position = trans.GetChild(0).position;
+        gun.transform.rotation = Quaternion.Euler(0, 0, 0);
+        //set gun bullet count
+        //TODO : check it!
+        gunScript.bulletUI.ResetBulletUI();
+
+        gunScript.currentBulletCount = getStageBulletLimit();
+
+        //move camera position
+        Vector3 midPos = (trans.position + Camera.main.transform.position)/2;
+        while ((Camera.main.transform.position - midPos).magnitude >= .01f)
+        {
+            Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, midPos,Time.deltaTime * 5f);
+            yield return null;
+        }
+        while ((Camera.main.transform.position - trans.position).magnitude >= .01f)
+        {
+            Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, trans.position, Time.deltaTime * 5f);
+            yield return null;
+        }
+
+        Camera.main.transform.position = trans.position;
+        currnetBoxCount = boxCount[currentStageNum];
+        gunScript.ResetbulletUI();
+        gunScript.nowChangingStage = false;
+        yield return null;
+    }
 
 
 
@@ -160,19 +224,12 @@ public class GameManager : MonoSingleton<GameManager>
 	{
 		gunScript.nowChangingStage = true;
 		MoveStage(1);
-		//LoadAndSave.Instance.SaveReachStage(SceneController.Instance.GetSceneIndex() * 10 + currentStageNum);
-
-
 	}
 
 	public void GameOver()
 	{
-
 		Debug.Log("GAME OVER");
 		SceneController.Instance.ReturnToTitle();
-
-
-
 	}
 
 

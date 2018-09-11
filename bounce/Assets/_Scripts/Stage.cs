@@ -3,7 +3,9 @@
 public class Stage : MonoBehaviour {
 
 	public GameObject[] _stage;
-	public int[] _boxCount;
+    public GameObject[] _stageIndexBlock;
+
+    public int[] _boxCount;
 	public int[] _bulletLimit;
 
 
@@ -14,8 +16,11 @@ public class Stage : MonoBehaviour {
 		GameManager.Instance.stage = _stage;
 		GameManager.Instance.boxCount = _boxCount;
 		GameManager.Instance.bulletLimit = _bulletLimit;
+        GameManager.Instance.stageIndexBlock = _stageIndexBlock;
 
-		GameManager.Instance.StageInit();
+
+
+        GameManager.Instance.StageInit();
 
 	}
 
